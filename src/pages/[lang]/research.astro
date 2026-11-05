@@ -1,0 +1,31 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { languages, research, site, type Language } from '../../data/profile';
+import { publications, researchPublications } from '../../data/publications';
+import { ui } from '../../data/ui';
+import ResearchPath from '../../components/ResearchPath.astro';
+import Icon from '../../components/Icon.astro';
+export function getStaticPaths() { return languages.map(lang => ({ params: { lang } })); }
+const lang = Astro.params.lang as Language, t = ui(lang);
+---
+<Layout lang={lang} page="research" title={t.research} description={t.researchDescription}>
+  <header class="page-intro"><p class="eyebrow">RESEARCH & EXPLORATION</p><h1>{t.research}</h1><p class="page-lead">{t.researchDescription}</p><p class="page-context">{site.researchStatement[lang]}</p></header>
+  <section class="research-approach" aria-labelledby="approach-heading">
+    <p class="eyebrow">{t.approachLabel}</p><h2 id="approach-heading">{t.approach}</h2>
+    <p class="approach-intro">{t.approachIntro}</p>
+    <ResearchPath lang={lang}/>
+  </section>
+  <div class="research-chapters">{research.map(item => { const papers = researchPublications(item.paperIds); return <section class="research-chapter" id={item.id}>
+    <div class="chapter-meta"><span>{item.number}</span><p>{item.label}</p></div><h2>{item.title[lang]}</h2>
+    <p class="research-question">{item.question[lang]}</p>
+    <div class:list={['chapter-content', { 'chapter-content-text': papers.length === 0 }]}>
+      <div><p>{item.description[lang]}</p><p class="method-label">{t.methods}</p><p class="method-text">{item.methods[lang]}</p></div>
+      {papers.length > 0 && <div class="chapter-images">{papers.map(paper => <figure>
+        <a class="chapter-image" href={paper.image} target="_blank" rel="noopener noreferrer" aria-label={`${paper.method} — ${t.viewImage}`}><img src={paper.image} alt={`${paper.method} — ${t.paperPreview}`} loading="lazy" decoding="async"/></a>
+        <figcaption><span>{paper.method} · {paper.shortVenue} {paper.year}</span><a href={paper.image} target="_blank" rel="noopener noreferrer">{t.viewImage}<Icon name="external" size={11}/></a></figcaption>
+      </figure>)}</div>}
+    </div>
+    {item.paperIds.length > 0 && <div class="related-papers"><span>{t.related}</span>{item.paperIds.map(id => { const paper = publications.find(p => p.id === id)!; return <a href={`/${lang}/publications/#${id}`}><span>{paper.shortVenue} {paper.year}</span>{paper.title}<Icon name="external" size={14}/></a>; })}</div>}
+  </section>; })}</div>
+  <div class="page-next"><a href={`/${lang}/publications/`}>{t.allPapers}<Icon name="arrow"/></a></div>
+</Layout>

@@ -1,0 +1,59 @@
+---
+import { site, type Language } from '../data/profile';
+import { ui } from '../data/ui';
+import Icon from '../components/Icon.astro';
+import '../styles/global.css';
+interface Props { lang: Language; page?: string; title?: string; description?: string }
+const { lang, page = '', title = site.name[lang], description = site.tagline[lang] } = Astro.props;
+const t = ui(lang), alternate = lang === 'zh' ? 'en' : 'zh';
+const path = page ? `${page}/` : '';
+const canonical = `${site.origin}/${lang}/${path}`;
+const menu = [{ id: '', text: t.home }, { id: 'research', text: t.research }, { id: 'publications', text: t.publications }, { id: 'experience', text: t.experience }];
+const structuredData = { '@context': 'https://schema.org', '@type': 'ProfilePage', name: `${site.name.en} | ${title}`, url: canonical, inLanguage: lang === 'zh' ? 'zh-CN' : 'en', mainEntity: { '@type': 'Person', name: site.name.en, alternateName: site.name.zh, url: site.origin, image: site.origin + site.portrait, affiliation: { '@type': 'CollegeOrUniversity', name: site.university.en }, sameAs: [site.github, site.scholar, site.orcid] } };
+---
+<!doctype html>
+<html lang={lang === 'zh' ? 'zh-CN' : 'en'}>
+  <head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>{page ? `${title} · ${site.name[lang]}` : `${site.name[lang]} | ${site.university[lang]}`}</title>
+    <meta name="description" content={description}/><meta name="theme-color" content="#fbfaf8"/>
+    <link rel="canonical" href={canonical}/><link rel="alternate" hreflang="zh-CN" href={`${site.origin}/zh/${path}`}/><link rel="alternate" hreflang="en" href={`${site.origin}/en/${path}`}/><link rel="alternate" hreflang="x-default" href={`${site.origin}/en/${path}`}/>
+    <meta property="og:type" content="profile"/><meta property="og:title" content={`${site.name[lang]} — ${title}`}/><meta property="og:description" content={description}/><meta property="og:url" content={canonical}/><meta property="og:image" content={`${site.origin}/assets/social-card.png`}/><meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/><meta property="og:locale" content={lang === 'zh' ? 'zh_CN' : 'en_US'}/><meta name="twitter:card" content="summary_large_image"/>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml"/>
+    <script type="application/ld+json" set:html={JSON.stringify(structuredData).replace(/</g, '\\u003c')}/>
+  </head>
+  <body class:list={[page ? `page-${page}` : 'page-home']}>
+    <a class="skip-link" href="#main">{t.skip}</a>
+    <header class="site-header"><div class="header-inner">
+      <a class="brand" href={`/${lang}/`} aria-label={`${site.name[lang]} — ${t.home}`}><span class="brand-monogram">xz<span>.</span></span><span class="brand-name">XIAOLEI ZHANG<span>ACADEMIC WEBSITE</span></span></a>
+      <nav id="navigation" aria-label={t.navigation}>{menu.map(item => <a href={`/${lang}/${item.id ? item.id + '/' : ''}`} class:list={{ active: page === item.id }} aria-current={page === item.id ? 'page' : undefined}>{item.text}</a>)}</nav>
+      <div class="header-tools"><a class="language-switch" href={`/${alternate}/${path}`} lang={alternate === 'zh' ? 'zh-CN' : 'en'} aria-label={alternate === 'en' ? 'Switch to English' : '切换到中文'} data-language={alternate}><Icon name="globe" size={15}/><span>{alternate === 'en' ? 'EN' : '中文'}</span></a><button class="menu-toggle" type="button" aria-label={t.openMenu} aria-controls="navigation" aria-expanded="false" data-open={t.openMenu} data-close={t.closeMenu}><span></span><span></span></button></div>
+    </div></header>
+    <div class="site-layout">
+      <aside class="profile-sidebar">
+        <a class="portrait-frame" href={`/${lang}/`} aria-label={`${site.name[lang]} — ${t.home}`}><img src={site.portrait} alt={site.name[lang]} width="1800" height="2400" fetchpriority="high"/></a>
+        <div class="sidebar-identity"><p class="sidebar-name">{site.name[lang]}</p><p class="sidebar-alt">{site.name[alternate]}</p><p class="sidebar-role"><span></span>{site.role[lang]}</p><a class="sidebar-university" href="https://www.nankai.edu.cn/" target="_blank" rel="noopener noreferrer">{site.university[lang]}</a><p class="sidebar-college">{site.college[lang]}</p></div>
+        <div class="sidebar-links">
+          <a href={`mailto:${site.email}`}><Icon name="mail" size={16}/><span>{site.email}</span></a>
+          <a href={site.scholar} target="_blank" rel="noopener noreferrer"><Icon name="scholar" size={16}/><span>Google Scholar</span><Icon name="external" size={12}/></a>
+          <a href={site.orcid} target="_blank" rel="noopener noreferrer"><Icon name="orcid" size={16}/><span>ORCID</span><Icon name="external" size={12}/></a>
+          <a href={site.github} target="_blank" rel="noopener noreferrer"><Icon name="github" size={16}/><span>GitHub</span><Icon name="external" size={12}/></a>
+        </div>
+        <div class="sidebar-interests"><p>{t.field}</p><span>Neural Architecture Search</span><span>Evolutionary Computation</span><span>Automated Machine Learning</span></div>
+        <p class="sidebar-location"><Icon name="pin" size={13}/>{lang === 'zh' ? '中国 · 天津' : 'Tianjin, China'}</p>
+      </aside>
+      <main id="main"><slot/></main>
+    </div>
+    <footer class="site-footer"><div><p>© 2026 {t.footer}</p><p>{t.updated} {site.updated} <span class="footer-sep">/</span><a href={`/${alternate}/${path}`} data-language={alternate}>{alternate === 'en' ? 'English' : '中文'}</a></p><a href="#main" class="back-top">{t.top}<span aria-hidden="true">↑</span></a></div></footer>
+    <script>
+      const menu = document.querySelector<HTMLButtonElement>('.menu-toggle');
+      const navigation = document.querySelector('#navigation');
+      const closeMenu = () => { menu?.setAttribute('aria-expanded','false'); menu?.setAttribute('aria-label',menu.dataset.open || 'Open navigation'); navigation?.classList.remove('is-open'); };
+      menu?.addEventListener('click', () => { const open = menu.getAttribute('aria-expanded') !== 'true'; menu.setAttribute('aria-expanded', String(open)); menu.setAttribute('aria-label', (open ? menu.dataset.close : menu.dataset.open) || 'Navigation'); navigation?.classList.toggle('is-open', open); });
+      document.addEventListener('keydown', event => { if (event.key === 'Escape' && menu?.getAttribute('aria-expanded') === 'true') { closeMenu(); menu.focus(); } });
+      document.addEventListener('click', event => { if (!(event.target as Element).closest('.site-header')) closeMenu(); });
+      document.querySelectorAll<HTMLAnchorElement>('[data-language]').forEach(link => { link.addEventListener('click', () => { try { localStorage.setItem('academic-language', link.dataset.language || 'en'); } catch {} const hash = location.hash; if (hash) link.hash = hash; }); });
+      document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach(button => button.addEventListener('click', async () => { const status = button.parentElement?.querySelector('.copy-status'); try { await navigator.clipboard.writeText(button.dataset.copy || ''); if (status) status.textContent = button.dataset.success || 'Copied'; } catch { const text = button.parentElement?.querySelector('pre'); if (text) { const selection = window.getSelection(); const range = document.createRange(); range.selectNodeContents(text); selection?.removeAllRanges(); selection?.addRange(range); } if (status) status.textContent = button.dataset.failure || 'Please copy the selected text'; } }));
+    </script>
+  </body>
+</html>

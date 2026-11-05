@@ -1,0 +1,44 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { languages, site, research, type Language } from '../../data/profile';
+import { publications } from '../../data/publications';
+import { researchFocus } from '../../data/approach';
+import { ui } from '../../data/ui';
+import Paper from '../../components/Paper.astro';
+import SectionHeading from '../../components/SectionHeading.astro';
+import Icon from '../../components/Icon.astro';
+import ResearchPath from '../../components/ResearchPath.astro';
+export function getStaticPaths() { return languages.map(lang => ({ params: { lang } })); }
+const lang = Astro.params.lang as Language, t = ui(lang);
+---
+<Layout lang={lang}>
+  <section class="hero" aria-labelledby="name">
+    <p class="eyebrow hero-eyebrow"><span class="eyebrow-line"></span>{t.homeEyebrow}</p>
+    <p class="hero-greeting">{t.hello}</p>
+    <h1 id="name">{site.name[lang]}<span class="name-dot">.</span></h1>
+    <p class="hero-secondary">{site.name[lang === 'zh' ? 'en' : 'zh']} <span>/</span> {site.role[lang]}</p>
+    <p class="hero-tagline">{site.tagline[lang]}</p>
+    <p class="hero-bio">{site.bio[lang]}</p>
+    <div class="hero-actions"><a class="button button-primary" href={`/${lang}/research/`}>{t.researchMore}<Icon name="arrow" size={17}/></a><a class="button button-text" href={`mailto:${site.email}`}>{t.email}<Icon name="external" size={16}/></a></div>
+    <div class="hero-footnote"><span class="status-dot"></span><span>{site.college[lang]} · {site.university[lang]}</span></div>
+  </section>
+  <section class="content-section research-overview" aria-label={t.researchIntro}>
+    <SectionHeading title={t.researchIntro} label="01 / RESEARCH"/>
+    <p class="research-focus">{researchFocus[lang]}</p>
+    <ResearchPath lang={lang} compact/>
+    <div class="research-overview-list">{research.map(item => <a class="research-overview-item" href={`/${lang}/research/#${item.id}`}><span class="research-number">{item.number}</span><div><h3>{item.title[lang]}</h3><p>{item.short[lang]}</p></div><Icon name="external" size={17}/></a>)}</div>
+  </section>
+  <section class="content-section selected-publications">
+    <SectionHeading title={t.selected} label="02 / PUBLICATIONS" href={`/${lang}/publications/`} linkText={t.allPapers}/>
+    <div class="papers">{publications.map(paper => <Paper paper={paper} lang={lang} compact/>)}</div>
+  </section>
+  <section class="content-section updates">
+    <SectionHeading title={t.timeline} label="03 / UPDATES"/>
+    <ol class="updates-list">
+      <li><time datetime="2026-05">2026.05</time><p>{lang === 'zh' ? '图嵌入与同构多比较研究发表于 ' : 'Our work on graph embedding and isomorphic multi-comparison appears in '}<a href={`/${lang}/publications/#gec-imc`}>International Journal of Neural Systems</a>{lang === 'zh' ? '。' : '.'}</p></li>
+      <li><time datetime="2025-12">2025.12</time><p>{lang === 'zh' ? '图神经网络双阶段代理模型研究发表于 ' : 'Our GNN-based dual-stage surrogate model appears in '}<a href={`/${lang}/publications/#dsgenas`}>IEEE TSMC: Systems</a>{lang === 'zh' ? '。' : '.'}</p></li>
+      <li><time datetime="2025-06">2025.06</time><p>{lang === 'zh' ? '基于对比学习的架构嵌入比较器研究发表于 ' : 'Our architecture embedding comparator with contrastive learning appears at '}<a href={`/${lang}/publications/#emcenas`}>IEEE CEC 2025</a>{lang === 'zh' ? '。' : '.'}</p></li>
+    </ol>
+  </section>
+  <section id="contact" class="contact-block"><p class="eyebrow">LET’S CONNECT</p><h2>{t.contactTitle}</h2><p>{t.contactText}</p><a href={`mailto:${site.email}`} class="contact-email">{site.email}<Icon name="external" size={23}/></a></section>
+</Layout>

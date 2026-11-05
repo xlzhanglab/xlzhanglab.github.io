@@ -1,0 +1,37 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { languages, type Language } from '../../data/profile';
+import { publications } from '../../data/publications';
+import { ui } from '../../data/ui';
+import Paper from '../../components/Paper.astro';
+import Icon from '../../components/Icon.astro';
+export function getStaticPaths() { return languages.map(lang => ({ params: { lang } })); }
+const lang = Astro.params.lang as Language, t = ui(lang);
+const years = [...new Set(publications.map(p => p.year))].sort((a,b) => b-a);
+---
+<Layout lang={lang} page="publications" title={t.publications} description={t.pubDescription}>
+  <header class="page-intro"><p class="eyebrow">PUBLICATIONS & CONTRIBUTIONS</p><h1>{t.publications}</h1><p class="page-lead">{t.pubDescription}</p><a href="/publications.bib" download class="inline-link bib-download"><Icon name="document" size={15}/>{t.downloadBib}<span>↓</span></a></header>
+  <div class="publication-tools" id="publication-tools" hidden>
+    <div class="search-row"><label class="paper-search"><Icon name="search" size={17}/><input type="search" id="paper-search" placeholder={t.search} aria-label={t.search} autocomplete="off"/></label><label class="year-select"><span class="visually-hidden">{t.year}</span><select id="year-filter"><option value="all">{t.allYears}</option>{years.map(year => <option value={year}>{year}</option>)}</select></label></div>
+    <div class="filter-row"><div class="paper-filters" role="group" aria-label={lang === 'zh' ? '论文类型' : 'Publication type'}>{(['all','journal','conference'] as const).map(type => <button type="button" data-filter={type} aria-pressed={type === 'all'} class:list={{active:type === 'all'}}>{t[type]}<span>{type === 'all' ? publications.length : publications.filter(p => p.type === type).length}</span></button>)}</div><span class="result-count" id="result-count" aria-live="polite" data-label={t.resultCount}>{publications.length} {t.resultCount}</span></div>
+  </div>
+  <div class="publication-archive">{publications.map(paper => <Paper paper={paper} lang={lang}/>)}</div>
+  <div id="no-results" class="no-results" hidden><Icon name="search" size={28}/><p>{t.noResults}</p><button type="button" id="reset-filters" class="button button-outline">{t.reset}</button></div>
+  <script>
+    const tools = document.querySelector<HTMLElement>('#publication-tools'); if (tools) tools.hidden = false;
+    const search = document.querySelector<HTMLInputElement>('#paper-search')!;
+    const year = document.querySelector<HTMLSelectElement>('#year-filter')!;
+    const papers = Array.from(document.querySelectorAll<HTMLElement>('[data-paper]'));
+    let type = 'all';
+    function filterPapers() {
+      const words = search.value.toLocaleLowerCase().trim().split(/\s+/).filter(Boolean); let visible = 0;
+      papers.forEach(paper => { const show = (type === 'all' || paper.dataset.type === type) && (year.value === 'all' || paper.dataset.year === year.value) && words.every(word => paper.dataset.search?.includes(word)); paper.hidden = !show; if (show) visible++; });
+      const count = document.querySelector('#result-count')!; count.textContent = `${visible} ${(count as HTMLElement).dataset.label}`;
+      document.querySelector<HTMLElement>('#no-results')!.hidden = visible !== 0;
+      document.querySelectorAll<HTMLElement>('[data-filter]').forEach(button => { const active = button.dataset.filter === type; button.classList.toggle('active', active); button.setAttribute('aria-pressed', String(active)); });
+    }
+    search.addEventListener('input', filterPapers); year.addEventListener('change', filterPapers);
+    document.querySelectorAll<HTMLElement>('[data-filter]').forEach(button => button.addEventListener('click', () => { type = button.dataset.filter || 'all'; filterPapers(); }));
+    document.querySelector('#reset-filters')?.addEventListener('click', () => { type = 'all'; search.value = ''; year.value = 'all'; filterPapers(); search.focus(); });
+  </script>
+</Layout>

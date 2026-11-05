@@ -1,0 +1,28 @@
+---
+import { site } from '../data/profile';
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Xiaolei Zhang · 张晓磊 | Nankai University</title>
+    <meta name="description" content="Xiaolei Zhang, Ph.D. student at Nankai University. 张晓磊，南开大学人工智能学院博士研究生。"/>
+    <link rel="canonical" href={`${site.origin}/en/`}/>
+    <link rel="alternate" hreflang="en" href={`${site.origin}/en/`}/>
+    <link rel="alternate" hreflang="zh-CN" href={`${site.origin}/zh/`}/>
+    <link rel="alternate" hreflang="x-default" href={`${site.origin}/en/`}/>
+    <link rel="icon" href="/favicon.svg"/>
+    <style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#fbfaf8;color:#25252b;font-family:Georgia,'Microsoft YaHei',serif}main{padding:30px;text-align:center}h1{font-size:42px;font-weight:500}p{color:#62616b;line-height:1.8}nav{display:flex;justify-content:center;gap:14px;margin-top:30px}a{color:#713451;border:1px solid #ded1d7;padding:12px 24px;text-decoration:none;border-radius:4px}a:focus-visible{outline:2px solid #713451;outline-offset:3px}</style>
+  </head>
+  <body>
+    <main><h1>Xiaolei Zhang <span lang="zh-CN">· 张晓磊</span></h1><p>College of Artificial Intelligence, Nankai University<br/><span lang="zh-CN">南开大学 · 人工智能学院</span></p><nav aria-label="Choose language / 选择语言"><a href="/en/" lang="en">English homepage</a><a href="/zh/" lang="zh-CN">中文主页</a></nav></main>
+    <script is:inline>
+      let lang = 'en';
+      try {
+        const saved = localStorage.getItem('academic-language');
+        if (saved === 'en' || saved === 'zh') lang = saved;
+      } catch {}
+      location.replace('/' + lang + '/' + location.search + location.hash);
+    </script>
+  </body>
+</html>

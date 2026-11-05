@@ -1,0 +1,27 @@
+# Only these source and deployment files belong in the GitHub repository.
+/*
+!/.github/
+!/.gitignore
+!/README.md
+!/astro.config.mjs
+!/package.json
+!/pnpm-lock.yaml
+!/tsconfig.json
+!/src/
+!/public/
+!/scripts/
+
+# The deployment workflow only needs this script.
+/scripts/*
+!/scripts/check-site.mjs
+
+# Local tools, VS Code configuration, preview output, and the Windows launcher
+# are excluded by the root allowlist above, even when F5 regenerates previews.
+**/node_modules/
+**/.env
+**/.env.*
+**/__pycache__/
+*.log
+*.zip
+.DS_Store
+Thumbs.db

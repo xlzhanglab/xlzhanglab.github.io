@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://xlzhanglab.github.io/sitemap.xml

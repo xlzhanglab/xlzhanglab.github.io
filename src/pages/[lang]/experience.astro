@@ -1,0 +1,30 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { languages, education, projects, research, type Language } from '../../data/profile';
+import { ui } from '../../data/ui';
+import SectionHeading from '../../components/SectionHeading.astro';
+import Icon from '../../components/Icon.astro';
+export function getStaticPaths() { return languages.map(lang => ({ params: { lang } })); }
+const lang = Astro.params.lang as Language, t = ui(lang);
+---
+<Layout lang={lang} page="experience" title={t.experience} description={t.experienceDescription}>
+  <header class="page-intro">
+    <p class="eyebrow">ACADEMIC JOURNEY</p><h1>{t.experience}</h1><p class="page-lead">{t.experienceDescription}</p>
+  </header>
+  <section class="content-section" id="education" aria-label={t.education}>
+    <SectionHeading title={t.education} label="01 / EDUCATION"/>
+    <ol class="experience-timeline" role="list">{education.map(item => <li class:list={['experience-entry', { 'is-current': item.current }]}>
+      <p class="experience-date">{item.period[lang]}</p>
+      <div class="experience-detail"><h3>{item.institution[lang]}</h3><p class="experience-role">{item.degree[lang]}</p><p class="experience-description">{item.detail[lang]}</p></div>
+    </li>)}</ol>
+  </section>
+  <section class="content-section" id="research-experience" aria-label={t.researchExperience}>
+    <SectionHeading title={t.researchExperience} label="02 / RESEARCH EXPERIENCE"/>
+    <ol class="experience-timeline" role="list">{projects.map(project => <li class="experience-entry">
+      <p class="experience-date">{project.year}</p>
+      <div class="experience-detail"><p class="project-program">{project.program[lang]}</p><h3 class="experience-project-title">{project.title[lang]}</h3><p class="experience-description">{project.description[lang]}</p>
+        <div class="project-topics"><span>{t.projectTopics}</span>{project.researchIds.map(id => { const topic = research.find(item => item.id === id)!; return <a href={`/${lang}/research/#${id}`}>{topic.title[lang]}<Icon name="arrow" size={12}/></a>; })}</div>
+      </div>
+    </li>)}</ol>
+  </section>
+</Layout>

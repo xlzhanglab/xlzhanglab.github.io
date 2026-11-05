@@ -1,0 +1,34 @@
+---
+import { publicationSearchText, type Publication } from '../data/publications';
+import type { Language } from '../data/profile';
+import { ui } from '../data/ui';
+import Icon from './Icon.astro';
+import ResearchFigure from './ResearchFigure.astro';
+interface Props { paper: Publication; lang: Language; compact?: boolean; figure?: boolean }
+const { paper, lang, compact = false, figure = true } = Astro.props;
+const t = ui(lang);
+---
+<article class:list={['paper', { 'paper-compact': compact, 'paper-no-figure': !figure }]} id={paper.id} data-paper data-year={paper.year} data-type={paper.type} data-search={publicationSearchText(paper)}>
+  {figure && <a class="paper-figure" href={`https://doi.org/${paper.doi}`} target="_blank" rel="noopener noreferrer" aria-label={`${t.paper}: ${paper.title}`} tabindex="-1">{paper.image ? <img class="paper-preview" src={paper.image} alt={`${paper.method} — ${t.paperPreview}`} width="220" height="138" loading="lazy" decoding="async"/> : <ResearchFigure kind={paper.figure} label={t.conceptual}/>}<span>{paper.shortVenue} <span>·</span> {paper.year}</span></a>}
+  <div class="paper-body">
+    <div class="paper-eyebrow"><span class="paper-method">{paper.method}</span><span>{paper.shortVenue} {paper.year}</span><span class="paper-kind">{t[paper.type]}</span></div>
+    <h3><a href={`https://doi.org/${paper.doi}`} target="_blank" rel="noopener noreferrer">{paper.title}</a></h3>
+    <p class="paper-authors">{paper.authors.map((author, i) => <>{i > 0 ? ', ' : ''}{author === 'Xiaolei Zhang' ? <strong>{author}</strong> : author}</>)}</p>
+    {!compact && <p class="paper-venue"><em>{paper.venue}</em>, {paper.detail}, {paper.year}.</p>}
+    <p class="paper-summary">{paper.summary[lang]}</p>
+    <ul class="paper-keywords" aria-label={t.keywords} role="list">{paper.keywords.map(keyword => <li>{keyword[lang]}</li>)}</ul>
+    <div class="paper-actions"><a href={`https://doi.org/${paper.doi}`} target="_blank" rel="noopener noreferrer"><Icon name="document" size={13}/>{t.paper}<Icon name="external" size={12}/></a><a href={`/${lang}/publications/#${paper.id}`} class="paper-permalink" aria-label={`${paper.title} — ${t.publications}`}>#</a></div>
+    {!compact && <details class="paper-notes">
+      <summary>{t.paperNotes}<span>{paper.method}</span></summary>
+      <div class="paper-notes-body">
+        <dl>
+          <div><dt>{t.question}</dt><dd>{paper.notes.question[lang]}</dd></div>
+          <div><dt>{t.coreMethod}</dt><dd>{paper.notes.method[lang]}</dd></div>
+          <div><dt>{t.contribution}</dt><dd>{paper.notes.contribution[lang]}</dd></div>
+        </dl>
+        <a class="notes-source" href={paper.source} target="_blank" rel="noopener noreferrer">{t.abstractSource}<Icon name="external" size={12}/></a>
+      </div>
+    </details>}
+    <details class="citation"><summary>{t.cite} <span>BibTeX</span></summary><div class="citation-body"><pre tabindex="0">{paper.bibtex}</pre><button class="copy-citation" type="button" data-copy={paper.bibtex} data-label={t.copy} data-success={t.copied} data-failure={t.copyFallback}>{t.copy}<Icon name="document" size={13}/></button><p class="copy-status" aria-live="polite"></p></div></details>
+  </div>
+</article>
